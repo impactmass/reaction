@@ -42,12 +42,11 @@ function getUrl() {
  */
 function getAuthData() {
   const packageData = taxCalc.getPackageData();
-  const { username, password } = packageData.settings.avalara;
+  const { username, password } = _.get(packageData, "settings.avalara", {});
 
   if (!username || !password) {
-    throw new Meteor.Error("You cannot use this API without a username and password configured");
+    return new Meteor.Error("You cannot use this API without a username and password configured");
   }
-
   const auth = `${username}:${password}`;
   return auth;
 }
@@ -145,10 +144,13 @@ taxCalc.validateAddress = function (address) {
 /**
  * @summary Get all registered companies
  * @param {Function} callback Callback function for asynchronous execution
- * @returns {Object} A list of all companies
+ * @returns {Object} API response object
  */
 taxCalc.getCompanies = function (callback) {
   const auth = getAuthData();
+  if (auth.error) {
+    return _.assign({}, auth, { statusCode: 401 });
+  }
   const baseUrl = getUrl();
   const requestUrl = `${baseUrl}/companies`;
 
@@ -400,5 +402,6 @@ taxCalc.reportRefund = function (order, refundAmount, callback) {
 export default taxCalc;
 
 Meteor.methods({
-  "avalara/addressValidation": taxCalc.validateAddress
+  "avalara/addressValidation": taxCalc.validateAddress,
+  "avalara/testConnection": taxCalc.getCompanies
 });
