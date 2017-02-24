@@ -7,6 +7,7 @@
         </div>
         <div class="panel-body">
           {{> afQuickField data-event-action="decide" name="taxSettings.customerUsageType" type="select" options=entityCodes }}
+          <p>Current Saved Entity Code: {{ account.taxSettings.customerUsageType }}</p>
         </div>
         <div class="panel-body customerUsageType hide">
           <label for="customerUsageType">Custom value</label>

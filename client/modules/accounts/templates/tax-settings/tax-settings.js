@@ -31,11 +31,11 @@ Template.taxSettingsPanel.helpers({
 Template.taxSettingsPanel.events({
   "change [data-event-action=decide]": function (event) {
     event.stopPropagation();
-    const formData = AutoForm.getFormValues("tax-settings-form");
-    const value = _.get(formData, "insertDoc.taxSettings.customerUsageType");
-    if (value === "CUSTOM USER INPUT") {
-      $(".customerUsageType").toggleClass("hide");
+
+    if (isCustomValue()) {
+      return $(".customerUsageType").toggleClass("hide");
     }
+    $(".customerUsageType").addClass("hide");
   }
 });
 
@@ -55,10 +55,18 @@ AutoForm.hooks({
   "tax-settings-form": {
     before: {
       update: function (doc) {
-        const value = $(".customerUsageType input").val();
-        doc.$set["taxSettings.customerUsageType"] = value;
+        if (isCustomValue()) {
+          const value = $(".customerUsageType input").val();
+          doc.$set["taxSettings.customerUsageType"] = value;
+        }
         return doc;
       }
     }
   }
 });
+
+function isCustomValue() {
+  const formData = AutoForm.getFormValues("tax-settings-form");
+  const value = _.get(formData, "insertDoc.taxSettings.customerUsageType");
+  return value === "CUSTOM USER INPUT";
+}

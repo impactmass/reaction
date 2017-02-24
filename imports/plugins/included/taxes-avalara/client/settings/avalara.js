@@ -31,9 +31,6 @@ Template.avalaraSettings.helpers({
   countryOptions() {
     // Avalara supports only Canada and US for address validation
     return Countries.find({ value: { $in: ["US", "CA"] } }).fetch();
-  },
-  currentCountryList() {
-    return AutoForm.getFieldValue("settings.addressValidation.countryList");
   }
 });
 
