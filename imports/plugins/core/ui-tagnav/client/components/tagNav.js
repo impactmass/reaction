@@ -4,7 +4,7 @@ import { DragDropProvider } from "/imports/plugins/core/ui/client/providers";
 import { Button, EditButton } from "/imports/plugins/core/ui/client/components";
 import { TagHelpers } from "/imports/plugins/core/ui-tagnav/client/helpers";
 import { TagList } from "/imports/plugins/core/ui/client/components/tags/";
-import TagTree from "./tagTree";
+import TagGroup from "./tagGroup";
 
 class TagNav extends Component {
   constructor(props) {
@@ -35,7 +35,7 @@ class TagNav extends Component {
     );
   }
 
-  tagTreeProps = (tag) => {
+  tagGroupProps = (tag) => {
     const subTagGroups = _.compact(TagHelpers.subTags(tag));
     const tagsByKey = {};
 
@@ -69,10 +69,10 @@ class TagNav extends Component {
               enableNewTagForm={true}
             >
               <div className="dropdown-container">
-                <TagTree
+                <TagGroup
                   {...this.props}
                   editable={this.props.editable === true}
-                  tagTreeProps={this.tagTreeProps(this.state.selectedTag || {})}
+                  tagGroupProps={this.tagGroupProps(this.state.selectedTag || {})}
                   onMove={this.props.onMoveTag}
                   onTagInputBlur={this.handleTagSave}
                   onTagMouseOut={this.handleTagMouseOut}

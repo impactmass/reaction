@@ -103,10 +103,8 @@ class TagNavContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('receiving new props', nextProps);
     let selectedTag = {};
     nextProps.tagsAsArray.map((tag) => {
-      console.log({ tag });
       if (this.isSelected(tag)) {
         selectedTag = tag;
       }
