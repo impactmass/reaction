@@ -134,7 +134,7 @@ class Tags extends Component {
   render() {
     if (this.props.isTagNav) {
       return (
-        <div className="navbar-items">
+        <div className="tag-group">
           {this.renderTags()}
         </div>
       );

@@ -332,6 +332,7 @@ class TagNavContainer extends Component {
     return (
       <div>
         <TagNav
+          {...this.props}
           {...TagNavHelpers}
           navbarOrientation={this.navbarOrientation}
           navbarPosition={this.navbarPosition}

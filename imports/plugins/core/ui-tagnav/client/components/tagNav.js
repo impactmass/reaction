@@ -59,8 +59,14 @@ class TagNav extends Component {
     return (
       <div className={`rui tagnav ${navbarOrientation} ${navbarPosition} ${navbarAnchor} ${navbarVisibility}`}>
         <div className="navbar-header">
-          <Button primary={true} icon="times" status="default" className="close-button" />
-          <p>Header</p>
+          <Button
+            primary={true}
+            icon="times"
+            status="default"
+            className="close-button"
+            onClick={this.props.closeNavbar}
+          />
+          {this.props.children}
         </div>
         <div className="navbar-items">
           <DragDropProvider>
@@ -90,6 +96,8 @@ class TagNav extends Component {
 }
 
 TagNav.propTypes = {
+  children: PropTypes.node,
+  closeNavbar: PropTypes.func,
   editable: PropTypes.bool,
   navButtonStyles: PropTypes.object,
   navbarAnchor: PropTypes.string,

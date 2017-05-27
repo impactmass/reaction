@@ -119,7 +119,7 @@ class TagGroup extends Component {
 
   render() {
     return (
-      <div className="rui tagGroup">
+      <div className="rui tagtree">
         <div className="header">
           <span className="title">{this.state.parentTag.name}</span>
           <a href="#">View All <i className="fa fa-angle-right" /></a>
