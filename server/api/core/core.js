@@ -153,7 +153,7 @@ export default {
   },
 
   hasOwnerAccess() {
-    return this.hasPermission(["owner"]);
+    return this.hasPermission(["owner"], this.userId);
   },
 
   hasAdminAccess() {
@@ -315,7 +315,7 @@ export default {
     return defaultValue || undefined;
   },
 
-  /**
+  /** // check usage of this
    * Add default roles for new visitors
    * @param {String|Array} roles - A string or array of roles and routes
    * @returns {undefined} - does not specifically return anything
