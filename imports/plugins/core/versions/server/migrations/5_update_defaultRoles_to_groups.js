@@ -23,7 +23,7 @@ Migrations.add({
 
       Object.keys(roles).forEach((groupKeys) => {
         const groupExists = allGroups.find((grp) => grp.slug === groupKeys && grp.shopId === shop._id);
-        if (!groupExists) {
+        if (!groupExists) { // create group only if it doesn't exist before
           Logger.debug(`creating group ${groupKeys} for shop ${shop.name}`);
           const groupId = Groups.insert({
             name: groupKeys,
@@ -31,8 +31,8 @@ Migrations.add({
             permissions: roles[groupKeys],
             shopId: shop._id
           });
-          console.log({ newgroup: groupId });
-          updateAccountsBelongingToGroup({ shopId: shop._id, permissions: roles[groupKeys], groupId });
+          console.log("newgroupID", groupId, "name ", groupKeys);
+          return updateAccountsBelongingToGroup({ shopId: shop._id, permissions: roles[groupKeys], groupId });
         }
       });
     }
@@ -40,7 +40,8 @@ Migrations.add({
     function updateAccountsBelongingToGroup({ shopId, permissions, groupId }) {
       const query = { [`roles.${shopId}`]: permissions };
       const matchingUserIds = Meteor.users.find(query).fetch().map((user) => user._id);
-      Accounts.update({ _id: { $in: matchingUserIds } }, { $set: { groups: [groupId] } });
+      console.log("matchingUserIds", matchingUserIds);
+      return Accounts.update({ _id: { $in: matchingUserIds } }, { $set: { groups: [groupId] } });
     }
   },
   down() {
