@@ -107,24 +107,22 @@ class OrderDashboardContainer extends Component {
       className: "",
       searchQuery: ""
     };
-
-    this.dep = new Tracker.Dependency;
   }
 
   componentDidMount() {
-    this.setupTracker();
+    this.props.setupTracker();
   }
 
   componentWillReceiveProps = (nextProps) => {
-    this.setupTracker();
+    this.props.setupTracker();
     this.setState({
       orders: nextProps.orders
     });
   }
 
-  componentWillUnmount() {
-    this.subscription.stop();
-  }
+  // componentWillUnmount() {
+  //   this.subscription.stop();
+  // }
 
   /**
    * handleSearchChange - handler called on search query change
@@ -133,7 +131,8 @@ class OrderDashboardContainer extends Component {
    */
   handleSearchChange = (value) => {
     this.setState({ searchQuery: value }, () => {
-      this.dep.changed();
+      console.log(this.props.searchDep);
+      this.props.searchDep.changed();
     });
   }
 
@@ -169,28 +168,7 @@ class OrderDashboardContainer extends Component {
   // Extracted Tracker logic for the search subscription, to allow calling in both
   // componentDidMount and componentWillReceiveProps
   // This tracker is setup in the class itself because we need to re-subscribe when search input changes
-  setupTracker = () => {
-    Tracker.autorun(() => {
-      this.dep.depend();
-      this.subscription = Meteor.subscribe("SearchResults", "orders", this.state.searchQuery);
-      let orderSearchResultsIds;
 
-      if (this.subscription.ready()) {
-        const orderSearchResults = OrderSearchCollection.find().fetch();
-        const query = this.state.query;
-        orderSearchResultsIds = orderSearchResults.map(orderSearch => orderSearch._id);
-        // checking to ensure search was made and search results are returned
-        if (this.state.searchQuery && Array.isArray(orderSearchResultsIds)) {
-          // add matching results from search to query passed to Sortable
-          query._id = { $in: orderSearchResultsIds };
-          return this.setState({ query: query });
-        }
-        // being here means no search text is inputed or search was cleared, so reset any previous match
-        delete query._id;
-        this.setState({ query: query });
-      }
-    });
-  }
 
   clearFilter = () => {
     const oldQuery = this.state.query;
@@ -823,12 +801,40 @@ class OrderDashboardContainer extends Component {
 const composer = (props, onData) => {
   const mediaSubscription = Meteor.subscribe("Media");
   const ordersSubscription = Meteor.subscribe("CustomPaginatedOrders");
+  const searchDep = new Tracker.Dependency;
+
+  const setupTracker = (searchQuery, query) => {
+    return Tracker.autorun(() => {
+      searchDep.depend();
+      console.log('re subscribe');
+      const searchSub = Meteor.subscribe("SearchResults", "orders", searchQuery);
+      let orderSearchResultsIds;
+
+      if (searchSub.ready()) {
+        const orderSearchResults = OrderSearchCollection.find().fetch();
+        // const query = this.state.query; // current combined query
+        orderSearchResultsIds = orderSearchResults.map(orderSearch => orderSearch._id);
+        console.log("orderSearchResultsIds.length": orderSearchResultsIds.length);
+        // checking to ensure search was made and search results are returned
+        if (searchQuery && Array.isArray(orderSearchResultsIds)) {
+          // add matching results from search to query passed to Sortable
+          query._id = { $in: orderSearchResultsIds };
+          console.log({ query });
+          return { query: query }; // call this.setState({ query: query }) in comp
+        }
+        // being here means no search text is inputed or search was cleared, so reset any previous match
+        delete query._id;
+        return { query: query }; // call this.setState({ query: query }) in comp
+      }
+    });
+  };
+
 
   if (mediaSubscription.ready() && ordersSubscription.ready()) {
     const orders = Orders.find().fetch();
 
     onData(null, {
-      orders
+      orders, searchDep, setupTracker
     });
   }
 };
