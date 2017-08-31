@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import { Tracker } from "meteor/tracker";
-import { composeWithTracker } from "@reactioncommerce/reaction-components";
+import { Components, composeWithTracker } from "@reactioncommerce/reaction-components";
 import { Media, Orders, OrderSearch as OrderSearchCollection } from "/lib/collections";
 import { Reaction, i18next } from "/client/api";
 import { Loading } from "/imports/plugins/core/ui/client/components";
@@ -107,24 +107,22 @@ class OrderDashboardContainer extends Component {
       className: "",
       searchQuery: ""
     };
-
-    this.dep = new Tracker.Dependency;
   }
 
-  componentDidMount() {
-    this.setupTracker();
-  }
+  // componentDidMount() {
+  //   this.setupTracker();
+  // }
 
   componentWillReceiveProps = (nextProps) => {
-    this.setupTracker();
+    // this.setupTracker();
     this.setState({
       orders: nextProps.orders
     });
   }
 
-  componentWillUnmount() {
-    this.subscription.stop();
-  }
+  // componentWillUnmount() {
+  //   this.subscription.stop();
+  // }
 
   /**
    * handleSearchChange - handler called on search query change
@@ -132,10 +130,16 @@ class OrderDashboardContainer extends Component {
    * @return {null} -
    */
   handleSearchChange = (value) => {
-    this.setState({ searchQuery: value }, () => {
-      this.dep.changed();
-    });
+    this.setState({ searchQuery: value });
   }
+
+  handleUpdate = (newState) => {
+    console.log({ newState });
+    // recursive call here... because state keeps getting reset
+    // need a check
+    // this.setState(newState);
+  }
+
 
   toggleShippingFlowList = () => {
     this.setState({
@@ -169,28 +173,28 @@ class OrderDashboardContainer extends Component {
   // Extracted Tracker logic for the search subscription, to allow calling in both
   // componentDidMount and componentWillReceiveProps
   // This tracker is setup in the class itself because we need to re-subscribe when search input changes
-  setupTracker = () => {
-    Tracker.autorun(() => {
-      this.dep.depend();
-      this.subscription = Meteor.subscribe("SearchResults", "orders", this.state.searchQuery);
-      let orderSearchResultsIds;
+  // setupTracker = () => {
+  //   Tracker.autorun(() => {
+  //     this.dep.depend();
+  //     this.subscription = Meteor.subscribe("SearchResults", "orders", this.state.searchQuery);
+  //     let orderSearchResultsIds;
 
-      if (this.subscription.ready()) {
-        const orderSearchResults = OrderSearchCollection.find().fetch();
-        const query = this.state.query;
-        orderSearchResultsIds = orderSearchResults.map(orderSearch => orderSearch._id);
-        // checking to ensure search was made and search results are returned
-        if (this.state.searchQuery && Array.isArray(orderSearchResultsIds)) {
-          // add matching results from search to query passed to Sortable
-          query._id = { $in: orderSearchResultsIds };
-          return this.setState({ query: query });
-        }
-        // being here means no search text is inputed or search was cleared, so reset any previous match
-        delete query._id;
-        this.setState({ query: query });
-      }
-    });
-  }
+  //     if (this.subscription.ready()) {
+  //       const orderSearchResults = OrderSearchCollection.find().fetch();
+  //       const query = this.state.query;
+  //       orderSearchResultsIds = orderSearchResults.map(orderSearch => orderSearch._id);
+  //       // checking to ensure search was made and search results are returned
+  //       if (this.state.searchQuery && Array.isArray(orderSearchResultsIds)) {
+  //         // add matching results from search to query passed to Sortable
+  //         query._id = { $in: orderSearchResultsIds };
+  //         return this.setState({ query: query });
+  //       }
+  //       // being here means no search text is inputed or search was cleared, so reset any previous match
+  //       delete query._id;
+  //       this.setState({ query: query });
+  //     }
+  //   });
+  // }
 
   clearFilter = () => {
     const oldQuery = this.state.query;
@@ -794,7 +798,12 @@ class OrderDashboardContainer extends Component {
   render() {
     return (
       <div className="order-dashboard-container">
-        <OrderSearch handleChange={this.handleSearchChange} />
+        <Components.OrderSearch
+          query={this.state.query}
+          searchQuery={this.state.searchQuery}
+          handleChange={this.handleSearchChange}
+          handleUpdate={this.handleUpdate}
+        />
         <OrderDashboard
           handleSelect={this.handleSelect}
           orders={this.state.orders}

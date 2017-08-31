@@ -67,6 +67,4 @@ class OrderSearch extends Component {
   }
 }
 
-registerComponent("OrderSearch", OrderSearch, withPermissions({ roles: ["orders"] }));
-
-export default compose(withPermissions({ roles: ["orders"] }))(OrderSearch);
+export default OrderSearch;
