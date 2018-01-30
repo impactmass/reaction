@@ -41,13 +41,15 @@ class ManageGroups extends Component {
             groups={groupsInvitable}
           />
         }
-        <Components.EditGroup
-          // filter out owner group from editable groups.
-          // The edit group meteor method also prevents editing owner group
-          groups={this.state.groups.filter(grp => grp.slug !== "owner")}
-          selectedGroup={this.state.group}
-          onChangeGroup={this.props.onChangeGroup}
-        />
+        { this.props.isAdmin &&
+          <Components.EditGroup
+            // filter out owner group from editable groups.
+            // The edit group meteor method also prevents editing owner group
+            groups={this.state.groups.filter(grp => grp.slug !== "owner")}
+            selectedGroup={this.state.group}
+            onChangeGroup={this.props.onChangeGroup}
+          />
+        }
       </div>
     );
   }
