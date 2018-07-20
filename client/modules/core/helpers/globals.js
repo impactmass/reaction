@@ -15,8 +15,8 @@ export function getUserId() {
   const profileStr = localStorage.getItem("reaction_kc_profile");
   const profile = profileStr && JSON.parse(profileStr);
   return profile && profile.attributes &&
-    profile.attributes["reaction-meteor-id"] &&
-    profile.attributes["reaction-meteor-id"][0];
+    profile.attributes["reaction-account-id"] &&
+    profile.attributes["reaction-account-id"][0];
 }
 
 /**
