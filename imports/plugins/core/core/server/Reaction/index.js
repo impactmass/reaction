@@ -7,6 +7,7 @@ import Endpoints from "./Endpoints";
 import { Fixture, Importer } from "./importer";
 import getRegistryDomain from "./getRegistryDomain";
 import getSlug from "./getSlug";
+import Token from "./token";
 import loadSettings from "./loadSettings";
 import setDomain from "./setDomain";
 import setShopName from "./setShopName";
@@ -23,6 +24,7 @@ export default {
   Fixture,
   getRegistryDomain,
   getSlug,
+  Token,
   Importer,
   loadSettings,
   Log,

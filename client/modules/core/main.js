@@ -196,7 +196,7 @@ export default {
   get state() {
     return reactionState;
   },
-  hasPermission(roles, userId, shopId) {
+  hasPermission(roles) {
     if (!Array.isArray(roles)) {
       roles = [roles];
     }

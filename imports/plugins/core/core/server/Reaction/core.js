@@ -1,4 +1,6 @@
 import url from "url";
+import fetch from "node-fetch";
+import { URLSearchParams } from 'url';
 import Hooks from "@reactioncommerce/hooks";
 import Logger from "@reactioncommerce/logger";
 import Random from "@reactioncommerce/random";
@@ -114,7 +116,37 @@ export default {
    * @return {function} Registers template
    */
   registerTemplate,
+  hasRole(role) {
+    console.log(role);
+  },
+  hasPermission(_resource, _scope, token) {
+    console.log(" ===========> hasPermission");
+    const AUTH_SERVER_URL = "http://localhost:8080";
+    const AUTH_SERVER_REALM = "default";
+    const GRANT_TYPE = "urn:ietf:params:oauth:grant-type:uma-ticket";
+    const RESOURCE_SERVER_CLIENT_ID = "reaction-meteor";
+    const resource = "urn:reaction:orders";
+    const scope = "urn:reaction:orders:read";
+    token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJSZFVQQV9xNFZ5TFpzOExrbS1xWnk5TEUzdTdqNHpwR28wNFdDeFFyb0FJIn0.eyJqdGkiOiIxMjUyYmVlZS1kMzRlLTQwNDMtYTVkNS1iMDg2OTBmZDA4MjIiLCJleHAiOjE1MzI1NjYxMzcsIm5iZiI6MCwiaWF0IjoxNTMyNTMzMzc4LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvZGVmYXVsdCIsImF1ZCI6InJlYWN0aW9uLW1ldGVvci1mcm9udGVuZCIsInN1YiI6ImE5M2RiNzRiLTYzNGUtNGUxNC1iZGNiLTBkODE0NGNmZDBjOSIsInR5cCI6IkJlYXJlciIsImF6cCI6InJlYWN0aW9uLW1ldGVvci1mcm9udGVuZCIsIm5vbmNlIjoiMmFiZjI5YTctNzBhMS00ZWE5LTlmMDgtNjQwZDAzNWFmNTE5IiwiYXV0aF90aW1lIjoxNTMyNTMwMTM3LCJzZXNzaW9uX3N0YXRlIjoiZTczY2MwN2EtNjM5MS00NTdiLTgzZGEtZmZkNTVjYjA5YjFiIiwiYWNyIjoiMCIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjMwMDAiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iLCJjdXN0b21lciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IkN1c3RvbWVyIEFjY291bnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJjdXN0b21lckBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJDdXN0b21lciIsImZhbWlseV9uYW1lIjoiQWNjb3VudCIsImVtYWlsIjoiY3VzdG9tZXJAZXhhbXBsZS5jb20ifQ.QfSKaoj5cNBBhoN6nKlRYELHfcAsb0ARFu1mDuKgdDCl-aw913rga637CjcYUTNxadvtQjLRGCHHzzQUTNHPFOeOIjmbH0npmSxYFC3-U_ynTNm5CKlFp1dOdlr0DfQ-4LSfAJhHDjHzMQgOnSpuLT8V4gnCdqra0ZKYHR1u2ID16HWGPBtkubZUyfSG-jUSSAh2Ui0MuxwiDcCpn42bB8qs3JDKYtkw_Z_jdkwTxS4-m1iuzVxQNzhapoolviGfqmeEicjumM-1yBQtSX_vDA4QYZIvW_Ln54zP19Yepxx2NtyEXmLZEo3rmqwxVGbzZsiniUZCKsLQdAPgrn9e6g";
 
+    // makes API call to authz server to get user's permission
+    const AUTHZ_URL = `${AUTH_SERVER_URL}/auth/realms/${AUTH_SERVER_REALM}/protocol/openid-connect/token`;
+    const params = new URLSearchParams();
+    params.append("grant_type", GRANT_TYPE);
+    params.append("audience", RESOURCE_SERVER_CLIENT_ID);
+    params.append("permission", `${resource}#${scope}`);
+
+    fetch(AUTHZ_URL, { // eslint-disable-line
+      method: "POST",
+      body: params,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+      .then(res => res.json())
+      .then(json => console.log(json));
+  },
   /**
    * @name hasPermission
    * @method
@@ -125,7 +157,7 @@ export default {
    * @param {String} checkGroup group - default to shopId
    * @return {Boolean} Boolean - true if has permission
    */
-  hasPermission(checkPermissions, userId = Meteor.userId(), checkGroup = this.getShopId()) {
+  _hasPermission(checkPermissions, userId = Meteor.userId(), checkGroup = this.getShopId()) {
     // check(checkPermissions, Match.OneOf(String, Array)); check(userId, String); check(checkGroup,
     // Match.Optional(String));
     let permissions;
